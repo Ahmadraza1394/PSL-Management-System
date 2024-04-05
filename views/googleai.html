@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <style></style>
+  <body class="bg-gray-100 p-4 sm:p-8">
+    <!-- Trigger Button -->
+    <!-- <button id="openModal" class="bg-blue-500 text-white p-2 rounded-md">
+      Ask Questions
+    </button> -->
+    <button
+      id="openModal"
+      class="hidden bg-blue-500 text-white p-4 rounded-full hover:animate-pulse transition duration-300 transform hover:scale-105"
+    >
+      Ask Questions
+    </button>
+
+    <!-- Bubble animation -->
+    <div id="bubble" class="absolute w-6 h-6 bg-blue-500 rounded-full"></div>
+
+    <div
+      id="modal"
+      class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+    >
+      <div
+        class="max-w-md mx-auto bg-white p-4 sm:p-6 md:p-8 rounded-md shadow-md"
+      >
+        <h1 class="text-2xl md:text-3xl font-bold mb-4">
+          Ask Questions related to PSL
+        </h1>
+        <form action="/googleai" method="POST" class="mb-6">
+          <label for="prompt" class="block text-sm font-medium text-gray-600"
+            >Write Prompt Here:</label
+          >
+          <input
+            type="text"
+            id="prompt"
+            name="prompt"
+            class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+          <button
+            type="submit"
+            class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+          >
+            Get Answer
+          </button>
+        </form>
+        <div class="mb-4">
+          <h2 class="text-lg md:text-xl font-bold mb-2">Question:</h2>
+          <h4 id="question" class="text-gray-800 text-sm md:text-base"></h4>
+        </div>
+        <div>
+          <h2 class="text-lg md:text-xl font-bold mb-2">Answer:</h2>
+          <h4 id="answer" class="text-green-600 text-sm md:text-base"></h4>
+        </div>
+        <button
+          id="closeModal"
+          class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript to handle modal visibility
+      const openModalBtn = document.getElementById("openModal");
+      const closeModalBtn = document.getElementById("closeModal");
+      const modal = document.getElementById("modal");
+      const questionDisplay = document.getElementById("question");
+      const answerDisplay = document.getElementById("answer");
+
+      openModalBtn.addEventListener("click", () => {
+        document.getElementById("prompt").value = "";
+        questionDisplay.textContent = "";
+        answerDisplay.textContent = "";
+        modal.classList.remove("hidden");
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        // Close modal
+        modal.classList.add("hidden");
+      });
+
+      // Function to handle form submission and update displays
+      const handleFormSubmission = async (event) => {
+        event.preventDefault();
+        const userQuery = document.getElementById("prompt").value;
+
+        try {
+          const response = await fetch("/googleai", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prompt: userQuery }), // Include userQuery in the body
+          });
+          const result = await response.json();
+          questionDisplay.textContent = `Question: ${result.prompt}`;
+          answerDisplay.textContent = `Answer: ${result.text}`;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+
+      document
+        .querySelector("form")
+        .addEventListener("submit", handleFormSubmission);
+
+      // document
+      //   .querySelector("form")
+      //   .addEventListener("submit", handleFormSubmission);
+      // Function to show the button and animate bubble after 3 seconds
+      setTimeout(() => {
+        const askButton = document.getElementById("openModal");
+        const bubble = document.getElementById("bubble");
+        askButton.classList.remove("hidden");
+        bubble.classList.add("animate-bubble");
+        setTimeout(() => {
+          bubble.classList.remove("animate-bubble");
+        }, 1000); // Adjust the duration as needed
+      }, 3000);
+
+      // Function to vibrate the button every 3 seconds
+      setInterval(() => {
+        const askButton = document.getElementById("openModal");
+        askButton.classList.add("animate-vibrate");
+        setTimeout(() => {
+          askButton.classList.remove("animate-vibrate");
+        }, 500); // Adjust the duration as needed
+      }, 3000);
+    </script>
+  </body>
+</html>
